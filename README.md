@@ -1,5 +1,7 @@
-random website discovery tool like stumbleupon but modern
+personal sites are a wonderful fragment of someones identity but not easily discoverable
 
-browse random sites from a curated list, vote on them, submit your own
+browse random personal sites, vote on them, submit your own
 
 arrow keys to navigate, upvote/downvote to curate the collection
+
+mostly for fun/whimsy
