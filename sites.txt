@@ -98,7 +98,6 @@ https://nickjanetakis.com/
 https://gregorygundersen.com/blog/
 https://adl1995.github.io/
 https://j3s.sh
-https://rishigoomar.com
 https://jeremy.richards.dev
 https://pin2.io
 https://tacosteemers.com
@@ -142,7 +141,6 @@ https://alexxx.co
 https://blog.nyman.re
 https://rikverse2020.rikweb.org.uk/
 https://domwillia.ms
-https://geekportfolio.com/
 http://www.dullsville.com/
 https://yoloprod.dev/
 https://www.spickermann.com
@@ -392,8 +390,10 @@ https://peekread.info
 https://krlx.fr
 https://ajxs.me
 https://patrick.wtf
+https://franciscouzo.github.io/
 https://me.kochie.io
 http://qedlaboratory.com/
+https://eieio.games/
 https://moonmusiq.com/
 https://standard.dev/
 https://memex.marginalia.nu/
@@ -547,7 +547,6 @@ https://amdelamar.com/blog/
 https://paco.me
 http://kradeelav.com
 https://symbolflux.com/projects
-https://www.teatechnique.org/
 https://blog.cofree.coffee/
 https://pixelism.com
 https://zachbellay.com/
@@ -627,7 +626,6 @@ https://lui.sv/
 http://liza.io
 https://antonai.blog/
 https://profitspace.io
-https://terj.in
 https://denner.co
 https://petergarner.net
 https://juanuys.com/
@@ -898,7 +896,6 @@ http://cushychicken.github.io
 https://cheapskatesguide.org
 https://atifcolo.com
 https://srirangan.net
-https://drhenry.org
 https://sneak.berlin
 https://kevmo314.com/
 https://duncanlock.net/
@@ -1156,3 +1153,8 @@ https://www.winstoncooke.com/
 https://www.wittegrond.net/
 https://yuv.al
 https://zygimantas.com/
+https://ahamidi.me
+https://davidheineman.com/
+https://chriskw.xyz
+https://nicita.cc
+https://nav.al/
