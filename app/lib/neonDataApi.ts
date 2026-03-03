@@ -27,16 +27,15 @@ export function isNeonDataApiConfigured(): boolean {
 export async function fetchRandomSitesFromNeon(limit: number): Promise<string[]> {
   if (!NEON_DATA_API_URL) return [];
   let token = cachedToken ?? (await getToken());
-  const url = `${NEON_DATA_API_URL}/rpc/get_random_sites`;
+  const lim = Math.min(Math.max(1, limit), 30);
+  const url = `${NEON_DATA_API_URL}/rpc/get_random_sites?lim=${lim}`;
   const doFetch = (t: string) =>
     fetch(url, {
-      method: "POST",
+      method: "GET",
       headers: {
-        "Content-Type": "application/json",
         Authorization: `Bearer ${t}`,
         Accept: "application/json",
       },
-      body: JSON.stringify({ lim: Math.min(Math.max(1, limit), 30) }),
     });
   let res = token ? await doFetch(token) : null;
   if (res?.status === 401 && !NEON_DATA_API_KEY) {
