@@ -2,6 +2,7 @@ import { readFileSync, writeFileSync } from "fs";
 import path from "path";
 import { NextResponse } from "next/server";
 import { hasDb, getSiteScore, getSiteSource, updateSiteScore } from "@/app/lib/db";
+import { getClientIp, checkRateLimit, RATE_LIMITS } from "@/app/lib/rateLimit";
 
 const VOTES_FILE = path.join(process.cwd(), "votes.json");
 const SITES_FILE = path.join(process.cwd(), "sites.txt");
@@ -46,6 +47,11 @@ export async function GET(req: Request) {
 }
 
 export async function POST(req: Request) {
+  const ip = getClientIp(req);
+  const { allowed } = await checkRateLimit(ip, "votes", RATE_LIMITS.votes);
+  if (!allowed) {
+    return NextResponse.json({ error: "Too many requests" }, { status: 429 });
+  }
   const { site, direction, undo } = await req.json();
   if (!site || !["up", "down"].includes(direction)) {
     return NextResponse.json({ error: "Invalid request" }, { status: 400 });

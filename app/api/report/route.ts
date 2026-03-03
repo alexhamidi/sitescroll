@@ -1,7 +1,13 @@
 import { NextResponse } from "next/server";
 import { hasDb, insertReport } from "@/app/lib/db";
+import { getClientIp, checkRateLimit, RATE_LIMITS } from "@/app/lib/rateLimit";
 
 export async function POST(req: Request) {
+  const ip = getClientIp(req);
+  const { allowed } = await checkRateLimit(ip, "report", RATE_LIMITS.report);
+  if (!allowed) {
+    return NextResponse.json({ error: "Too many requests" }, { status: 429 });
+  }
   const body = await req.json();
   const url = typeof body?.url === "string" ? body.url.trim() : "";
   const feedback = typeof body?.feedback === "string" ? body.feedback.trim() : null;

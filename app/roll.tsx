@@ -3,6 +3,10 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import InfoCard from "./InfoCard";
 import TutorialModal, { getSeenTutorial, setSeenTutorial } from "./TutorialModal";
+import {
+  isNeonDataApiConfigured,
+  fetchRandomSitesFromNeon,
+} from "@/app/lib/neonDataApi";
 
 const STORAGE_KEY = "sitescroll-last-url";
 const BATCH_SIZE = 15;
@@ -101,10 +105,12 @@ export default function Roll() {
     if (fetchingRef.current) return [];
     fetchingRef.current = true;
     try {
+      if (isNeonDataApiConfigured()) {
+        return await fetchRandomSitesFromNeon(BATCH_SIZE);
+      }
       const res = await fetch(`/api/random?count=${BATCH_SIZE}`);
       const data = await res.json();
-      const sites: string[] = data.sites || [];
-      return sites;
+      return (data.sites || []) as string[];
     } catch {
       return [];
     } finally {
@@ -434,6 +440,8 @@ export default function Roll() {
   useEffect(() => {
     function handleClick(e: MouseEvent) {
       if (!e.altKey) return;
+      const target = e.target as Node;
+      if (target && "closest" in target && (target as Element).closest?.("a")) return;
       const dir: "left" | "right" =
         e.clientX < window.innerWidth / 2 ? "left" : "right";
       console.log("[ss] window click (capture, altKey), dir:", dir);
@@ -525,7 +533,7 @@ export default function Roll() {
         id="iframe-overlay"
         className="absolute inset-0 z-20"
         style={{
-          pointerEvents: optionKeyHeld ? "auto" : "none",
+          pointerEvents: "none",
           cursor: optionKeyHeld ? "pointer" : undefined,
         }}
         onWheel={handleOptionScroll}

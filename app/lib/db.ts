@@ -120,3 +120,54 @@ export async function updateSiteScore(url: string, delta: number): Promise<numbe
   );
   return rows[0]?.score ?? 0;
 }
+
+export type IdeaRow = {
+  text: string;
+  color: string | null;
+  rotation: number;
+  x: number;
+  y: number;
+  timestamp: number;
+};
+
+export async function getIdeas(sessionId: string): Promise<IdeaRow[]> {
+  const { rows } = await query<{
+    text: string;
+    color: string | null;
+    rotation: number;
+    x: number;
+    y: number;
+    timestamp: string;
+  }>(
+    "SELECT text, color, rotation, x, y, timestamp FROM ideas WHERE session_id = $1 ORDER BY id",
+    [sessionId]
+  );
+  return rows.map((r) => ({
+    text: r.text,
+    color: r.color ?? "#fde047",
+    rotation: Number(r.rotation),
+    x: Number(r.x),
+    y: Number(r.y),
+    timestamp: Number(r.timestamp),
+  }));
+}
+
+export async function saveIdeas(sessionId: string, ideas: IdeaRow[]): Promise<void> {
+  await withClient(async (client) => {
+    await client.query("DELETE FROM ideas WHERE session_id = $1", [sessionId]);
+    for (const row of ideas) {
+      await client.query(
+        "INSERT INTO ideas (session_id, text, color, rotation, x, y, timestamp) VALUES ($1, $2, $3, $4, $5, $6, $7)",
+        [
+          sessionId,
+          row.text,
+          row.color ?? null,
+          row.rotation ?? 0,
+          row.x ?? 0,
+          row.y ?? 0,
+          String(row.timestamp),
+        ]
+      );
+    }
+  });
+}

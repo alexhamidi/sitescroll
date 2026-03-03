@@ -1,7 +1,13 @@
 import { NextResponse } from "next/server";
 import { hasDb, getRandomSites } from "@/app/lib/db";
+import { getClientIp, checkRateLimit, RATE_LIMITS } from "@/app/lib/rateLimit";
 
 export async function GET(req: Request) {
+  const ip = getClientIp(req);
+  const { allowed } = await checkRateLimit(ip, "random", RATE_LIMITS.random);
+  if (!allowed) {
+    return NextResponse.json({ error: "Too many requests" }, { status: 429 });
+  }
   if (!hasDb()) {
     return NextResponse.json(
       {
