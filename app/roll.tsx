@@ -73,7 +73,11 @@ function getUrlFrom(
 
 export default function Roll() {
   const [showTutorial, setShowTutorial] = useState(false);
-  const [showNav, setShowNav] = useState(true);
+  const [showNav, setShowNav] = useState(() => {
+    if (typeof window === "undefined") return true;
+    const saved = localStorage.getItem("sitescroll-show-nav");
+    return saved === null ? true : saved === "true";
+  });
   const [current, setCurrent] = useState<string | null>(null);
   const [history, setHistory] = useState<string[]>([]);
   const [historyIdx, setHistoryIdx] = useState(-1);
@@ -564,7 +568,11 @@ export default function Roll() {
           onOpenTutorial={() => setShowTutorial(true)}
           onGoToUrl={goToUrl}
           showNav={showNav}
-          onToggleNav={() => setShowNav((v) => !v)}
+          onToggleNav={() => setShowNav((v) => {
+            const next = !v;
+            localStorage.setItem("sitescroll-show-nav", String(next));
+            return next;
+          })}
         />
       )}
 
