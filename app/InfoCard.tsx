@@ -400,7 +400,7 @@ export default function InfoCard({ currentUrl, onOpenTutorial, onGoToUrl, showNa
           aria-label={isCurrentSaved ? "Unsave" : "Save"}
           title={isCurrentSaved ? "Unsave" : "Save"}
         >
-          <i className={`fa-heart fa-lg ${isCurrentSaved ? "fa-solid" : "fa-regular"}`} />
+          <i className={`fa-bookmark fa-lg ${isCurrentSaved ? "fa-solid" : "fa-regular"}`} />
         </button>
         <button
           onClick={() => {
