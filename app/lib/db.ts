@@ -113,6 +113,13 @@ export async function getSiteSource(
     : { source: null, source_url: null };
 }
 
+export async function incrementVisits(url: string): Promise<void> {
+  await query(
+    "UPDATE sites SET visits = visits + 1 WHERE url = $1",
+    [url]
+  );
+}
+
 export async function updateSiteScore(url: string, delta: number): Promise<number> {
   const { rows } = await query<{ score: number }>(
     "UPDATE sites SET score = score + $2 WHERE url = $1 RETURNING score",

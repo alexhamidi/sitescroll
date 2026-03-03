@@ -336,6 +336,11 @@ export default function Roll() {
       typeof window !== "undefined"
     ) {
       localStorage.setItem(STORAGE_KEY, currentUrl);
+      fetch("/api/visit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url: currentUrl }),
+      }).catch(() => {});
     }
   }, [currentUrl]);
 
