@@ -3,7 +3,7 @@
 CREATE OR REPLACE FUNCTION public.get_random_sites(lim int)
 RETURNS setof text
 LANGUAGE sql
-STABLE
+VOLATILE
 AS $$
   WITH total AS (
     SELECT count(*)::int AS n FROM sites WHERE score >= 0

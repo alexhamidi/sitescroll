@@ -28,14 +28,16 @@ export async function fetchRandomSitesFromNeon(limit: number): Promise<string[]>
   if (!NEON_DATA_API_URL) return [];
   let token = cachedToken ?? (await getToken());
   const lim = Math.min(Math.max(1, limit), 30);
-  const url = `${NEON_DATA_API_URL}/rpc/get_random_sites?lim=${lim}`;
+  const url = `${NEON_DATA_API_URL}/rpc/get_random_sites`;
   const doFetch = (t: string) =>
     fetch(url, {
-      method: "GET",
+      method: "POST",
       headers: {
         Authorization: `Bearer ${t}`,
+        "Content-Type": "application/json",
         Accept: "application/json",
       },
+      body: JSON.stringify({ lim }),
     });
   let res = token ? await doFetch(token) : null;
   if (res?.status === 401 && !NEON_DATA_API_KEY) {
