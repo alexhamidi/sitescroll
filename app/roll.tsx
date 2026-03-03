@@ -590,7 +590,7 @@ export default function Roll() {
           <button
             type="button"
             onClick={() => handleSwipe("left")}
-            className="fixed left-3 top-1/2 z-30 -translate-y-1/2 rounded-full bg-amber-300 px-4 py-2 text-[15px] font-medium text-stone-800 transition-colors hover:bg-amber-400 font-[family-name:var(--font-nunito)]"
+            className="fixed left-3 top-1/2 z-30 -translate-y-1/2 rounded-full bg-amber-100 px-4 py-2 text-[15px] font-medium text-stone-700 transition-colors hover:bg-amber-200 font-[family-name:var(--font-nunito)]"
           >
             <i className="fa-solid fa-arrow-left fa-xs" />{" "}no like
           </button>
@@ -599,7 +599,7 @@ export default function Roll() {
           <button
             type="button"
             onClick={() => handleSwipe("right")}
-            className="fixed right-3 top-1/2 z-30 -translate-y-1/2 rounded-full bg-amber-300 px-4 py-2 text-[15px] font-medium text-stone-800 transition-colors hover:bg-amber-400 font-[family-name:var(--font-nunito)]"
+            className="fixed right-3 top-1/2 z-30 -translate-y-1/2 rounded-full bg-amber-100 px-4 py-2 text-[15px] font-medium text-stone-700 transition-colors hover:bg-amber-200 font-[family-name:var(--font-nunito)]"
           >
             like{" "}<i className="fa-solid fa-arrow-right fa-xs" />
           </button>
@@ -608,7 +608,7 @@ export default function Roll() {
           <button
             type="button"
             onClick={() => handleSwipe("down")}
-            className="fixed left-1/2 top-3 z-30 -translate-x-1/2 rounded-full bg-amber-300 px-4 py-2 text-[15px] font-medium text-stone-800 transition-colors hover:bg-amber-400 font-[family-name:var(--font-nunito)]"
+            className="fixed left-1/2 top-3 z-30 -translate-x-1/2 rounded-full bg-amber-100 px-4 py-2 text-[15px] font-medium text-stone-700 transition-colors hover:bg-amber-200 font-[family-name:var(--font-nunito)]"
           >
             prev
           </button>
@@ -617,7 +617,7 @@ export default function Roll() {
           <button
             type="button"
             onClick={() => handleSwipe("up")}
-            className="fixed bottom-6 left-1/2 z-30 -translate-x-1/2 rounded-full bg-amber-300 px-4 py-2 text-[15px] font-medium text-stone-800 transition-colors hover:bg-amber-400 font-[family-name:var(--font-nunito)]"
+            className="fixed bottom-6 left-1/2 z-30 -translate-x-1/2 rounded-full bg-amber-100 px-4 py-2 text-[15px] font-medium text-stone-700 transition-colors hover:bg-amber-200 font-[family-name:var(--font-nunito)]"
           >
             next
           </button>
