@@ -565,6 +565,14 @@ export default function Roll() {
         />
       )}
 
+      <button
+        type="button"
+        onClick={() => window.location.reload()}
+        className="absolute bottom-6 left-6 z-30 rounded-full bg-amber-100 px-4 py-2 text-[15px] font-medium text-stone-700 transition-colors hover:bg-amber-200 font-[family-name:var(--font-nunito)]"
+      >
+        Stuck?
+      </button>
+
       <div className="relative min-h-0 flex-1 overflow-hidden">
         {uniqueUrls.map((url, i) => {
           const isCurrent = url === currentUrl;
