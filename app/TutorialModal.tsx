@@ -57,7 +57,11 @@ export default function TutorialModal({ open, onClose }: TutorialModalProps) {
             className="fixed inset-0 z-50 bg-black/30 backdrop-blur-sm"
             onClick={onClose}
           />
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center p-4"
+            onClick={onClose}
+            role="presentation"
+          >
             <motion.div
               key="tutorial"
               initial={{ opacity: 0, scale: 0.94, y: 8 }}
@@ -81,14 +85,8 @@ export default function TutorialModal({ open, onClose }: TutorialModalProps) {
               </p>
               <div className="mb-4 space-y-2 text-sm text-stone-600">
                 <p className="font-medium text-stone-700">How to use</p>
-                <p>Arrow keys or Option + vertical scroll to move between sites.</p>
-
-                <p > Next to each site you’ll see{" "}
-                  <i className="fa-slab fa-regular fa-thumbs-down fa-sm align-middle scale-x-[-1]" aria-hidden />{" "}
-                  and{" "}
-                  <i className="fa-slab fa-regular fa-thumbs-up fa-sm align-middle" aria-hidden />.
-                  Thumbs down for generic, boring, or low-effort sites. Thumbs up for distinctive, interesting, or exceptional ones.
-                </p>
+                <p>Hold Option and click (right half = like, left half = don&apos;t) to go to the next site. Or use Option+arrow keys: Option+left = swipe left, Option+right or Option+down = next, Option+up = previous.</p>
+                <p>If Option+click doesn&apos;t work — e.g. after clicking inside a site — turn on <strong>Nav</strong> (bottom-left) to click left/right to swipe without holding Option.</p>
               </div>
               <div className="mb-4">
                 <label className="mb-1.5 block text-sm font-medium text-stone-700">

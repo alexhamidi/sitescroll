@@ -10,6 +10,7 @@ build/
 
 # Environment variables
 .env*
+pipeline
 
 # Debug logs
 *.log

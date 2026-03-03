@@ -52,9 +52,10 @@ function SourceLogo({ source, className }: { source: string; className?: string 
 
 type InfoCardProps = {
   currentUrl: string;
+  onOpenTutorial?: () => void;
 };
 
-export default function InfoCard({ currentUrl }: InfoCardProps) {
+export default function InfoCard({ currentUrl, onOpenTutorial }: InfoCardProps) {
   const [open, setOpen] = useState(false);
   const [addUrl, setAddUrl] = useState("");
   const [reportFeedback, setReportFeedback] = useState("");
@@ -67,6 +68,7 @@ export default function InfoCard({ currentUrl }: InfoCardProps) {
   const [userVote, setUserVote] = useState<"up" | "down" | null>(null);
   const [source, setSource] = useState<string | null>(null);
   const [sourceUrl, setSourceUrl] = useState<string | null>(null);
+  const [leaderboardHover, setLeaderboardHover] = useState(false);
 
   async function submitAdd() {
     if (!addUrl.trim() || addStatus === "sending") return;
@@ -203,10 +205,10 @@ export default function InfoCard({ currentUrl }: InfoCardProps) {
                 href={sourceUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 text-sm text-stone-600 hover:text-stone-800"
+                className="flex items-center gap-2 text-sm text-stone-600 underline decoration-amber-300 underline-offset-2 hover:text-stone-800 hover:decoration-amber-400"
               >
                 <SourceLogo source={source} className="shrink-0 text-stone-500" />
-                <span className="truncate">Via {source === "hn" ? "Hacker News" : source === "x" || source === "twitter" ? "X" : source === "arena" ? "Are.na" : source}</span>
+                <span className="truncate">{sourceUrl}</span>
               </a>
             )}
             <div>
@@ -226,7 +228,7 @@ export default function InfoCard({ currentUrl }: InfoCardProps) {
               )}
             </div>
 
-            <hr className="border-amber-200/60" />
+            <hr className="border-stone-200" />
 
             <div className="relative">
               <label className="mb-1.5 block text-sm font-medium text-stone-700">
@@ -262,7 +264,7 @@ export default function InfoCard({ currentUrl }: InfoCardProps) {
             </div>
           </div>
 
-          <p className="mt-5 border-t border-amber-200/60 pt-4 text-center text-sm text-stone-500">
+          <p className="mt-5 border-t border-stone-200 pt-4 text-center text-sm text-stone-500">
             built by{" "}
             <a
               href="https://ahamidi.me"
@@ -272,6 +274,18 @@ export default function InfoCard({ currentUrl }: InfoCardProps) {
             >
               alexhamidi
             </a>
+            {onOpenTutorial && (
+              <>
+                {" • "}
+                <button
+                  type="button"
+                  onClick={onOpenTutorial}
+                  className="font-medium text-stone-600 underline decoration-amber-300 underline-offset-2 hover:text-stone-800"
+                >
+                  more info
+                </button>
+              </>
+            )}
           </p>
           </motion.div>
         )}
@@ -280,7 +294,7 @@ export default function InfoCard({ currentUrl }: InfoCardProps) {
       <div className="flex items-center gap-4">
         {hostname && (
           <>
-            <button
+            {/* <button
               type="button"
               onClick={() => submitVote("down")}
               disabled={voteStatus === "sending"}
@@ -297,7 +311,7 @@ export default function InfoCard({ currentUrl }: InfoCardProps) {
               aria-label="Thumbs up"
             >
               <i className={`fa-slab fa-lg ${userVote === "up" ? "fa-solid" : "fa-regular"} fa-thumbs-up`} />
-            </button>
+            </button> */}
             <a
               href={currentUrl}
               target="_blank"
@@ -314,6 +328,18 @@ export default function InfoCard({ currentUrl }: InfoCardProps) {
         >
           {open ? "close" : "actions"}
         </button>
+        <div
+          className="relative"
+          onMouseEnter={() => setLeaderboardHover(true)}
+          onMouseLeave={() => setLeaderboardHover(false)}
+        >
+          <button
+            disabled
+            className="w-[130px] cursor-not-allowed rounded-full px-4 py-2 text-center bg-amber-100 text-[15px] font-medium text-stone-500 opacity-60"
+          >
+            {leaderboardHover ? "coming soon" : "leaderboard"}
+          </button>
+        </div>
       </div>
     </div>
   );
