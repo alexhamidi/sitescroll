@@ -1,10 +1,18 @@
-import { appendFileSync } from "fs";
-import path from "path";
 import { NextResponse } from "next/server";
-
-const SITES_FILE = path.join(process.cwd(), "sites.txt");
+import { hasDb, insertSite } from "@/app/lib/db";
 
 export async function POST(req: Request) {
+  if (!hasDb()) {
+    return NextResponse.json(
+      {
+        error: "DB not configured",
+        detail:
+          "Set DATABASE_URL or POSTGRES_URL in .env at the project root (sitescroll/.env). Next.js does not load app/.env.",
+      },
+      { status: 503 }
+    );
+  }
+
   const { url } = await req.json();
 
   if (!url || typeof url !== "string") {
@@ -22,6 +30,17 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Invalid URL" }, { status: 400 });
   }
 
-  appendFileSync(SITES_FILE, "\n" + normalized);
-  return NextResponse.json({ ok: true });
+  try {
+    await insertSite(normalized, "submit");
+    return NextResponse.json({ ok: true });
+  } catch (e) {
+    const err = e as Error;
+    const message = err.message ?? String(e);
+    const code = "code" in err ? (err as { code: string }).code : undefined;
+    console.error("insertSite failed:", message, code);
+    return NextResponse.json(
+      { error: "DB error", detail: message, code: code ?? null },
+      { status: 503 }
+    );
+  }
 }
