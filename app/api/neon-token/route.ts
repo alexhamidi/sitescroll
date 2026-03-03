@@ -34,19 +34,11 @@ export async function GET() {
     const signInBody = (await signInRes.json()) as Record<string, unknown>;
     const jwtFromBody =
       (signInBody?.data as { session?: { access_token?: string } })?.session?.access_token ??
-      (signInBody?.session as { access_token?: string })?.access_token ??
-      signInBody?.token;
-    if (typeof jwtFromBody === "string") {
+      (signInBody?.session as { access_token?: string })?.access_token;
+    if (typeof jwtFromBody === "string" && jwtFromBody.startsWith("eyJ")) {
       return NextResponse.json({ token: jwtFromBody });
     }
-    const sessionToken =
-      (signInBody?.data as { session?: { token?: string } })?.session?.token ??
-      (signInBody?.session as { token?: string })?.token ??
-      signInBody?.token;
-    const cookieHeader =
-      typeof sessionToken === "string"
-        ? `__Secure-neon-auth.session_token=${encodeURIComponent(sessionToken)}`
-        : signInRes.headers.get("set-cookie");
+    const cookieHeader = signInRes.headers.get("set-cookie");
     if (!cookieHeader) {
       return NextResponse.json({ error: "No session token from Neon Auth" }, { status: 502 });
     }
