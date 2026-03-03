@@ -11,8 +11,6 @@ const LOADING_PLACEHOLDER = "__loading__";
 const SWIPE_DURATION_MS = 400;
 
 const SCROLL_SWIPE_THRESHOLD = 80;
-const FETCH_TIMEOUT_MS = 12000;
-const IFRAME_LOAD_FALLBACK_MS = 12000;
 
 function SwipeOverlay({
   dir,
@@ -91,7 +89,6 @@ export default function Roll() {
   const optionKeyUpTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
     null
   );
-  const iframeLoadFallbackRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const stateRef = useRef({ history, historyIdx, queue });
   stateRef.current = { history, historyIdx, queue };
@@ -103,19 +100,14 @@ export default function Roll() {
   const fetchBatch = useCallback(async (): Promise<string[]> => {
     if (fetchingRef.current) return [];
     fetchingRef.current = true;
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
     try {
-      const res = await fetch(`/api/random?count=${BATCH_SIZE}`, {
-        signal: controller.signal,
-      });
+      const res = await fetch(`/api/random?count=${BATCH_SIZE}`);
       const data = await res.json();
       const sites: string[] = data.sites || [];
       return sites;
     } catch {
       return [];
     } finally {
-      clearTimeout(timeoutId);
       fetchingRef.current = false;
     }
   }, []);
@@ -315,6 +307,7 @@ export default function Roll() {
         setCurrent(first);
         setHistory([first]);
         setHistoryIdx(0);
+        setLoading(false);
         refillQueue();
         setLoadFailed(false);
       } else {
@@ -334,21 +327,6 @@ export default function Roll() {
       localStorage.setItem(STORAGE_KEY, currentUrl);
     }
   }, [currentUrl]);
-
-  useEffect(() => {
-    if (!loading || !currentUrl || currentUrl === LOADING_PLACEHOLDER) return;
-    if (iframeLoadFallbackRef.current) clearTimeout(iframeLoadFallbackRef.current);
-    iframeLoadFallbackRef.current = setTimeout(() => {
-      iframeLoadFallbackRef.current = null;
-      setLoading(false);
-    }, IFRAME_LOAD_FALLBACK_MS);
-    return () => {
-      if (iframeLoadFallbackRef.current) {
-        clearTimeout(iframeLoadFallbackRef.current);
-        iframeLoadFallbackRef.current = null;
-      }
-    };
-  }, [loading, currentUrl]);
 
   useEffect(() => {
     if (
@@ -642,15 +620,6 @@ export default function Roll() {
                 <iframe
                   src={url}
                   className="h-full w-full border-none bg-white"
-                  onLoad={() => {
-                    if (url === currentUrl) {
-                      if (iframeLoadFallbackRef.current) {
-                        clearTimeout(iframeLoadFallbackRef.current);
-                        iframeLoadFallbackRef.current = null;
-                      }
-                      setLoading(false);
-                    }
-                  }}
                   title={url}
                 />
               )}

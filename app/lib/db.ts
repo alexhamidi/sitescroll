@@ -63,7 +63,10 @@ export async function getRandomSites(
         : "";
     const params =
       exclude.length > 0 ? [exclude, limit] : [limit];
-    const sql = `SELECT url FROM sites WHERE score >= 0 ${excludeFilter} ORDER BY random() LIMIT $${exclude.length > 0 ? 2 : 1}`;
+    const sql =
+      exclude.length > 0
+        ? `WITH total AS (SELECT count(*)::int AS n FROM sites WHERE score >= 0 AND url != ALL($1::text[])), r AS (SELECT floor(random() * greatest(0, (SELECT n FROM total) - $2))::int AS off) SELECT url FROM sites WHERE score >= 0 AND url != ALL($1::text[]) ORDER BY ctid OFFSET (SELECT off FROM r) LIMIT $2`
+        : `WITH total AS (SELECT count(*)::int AS n FROM sites WHERE score >= 0), r AS (SELECT floor(random() * greatest(0, (SELECT n FROM total) - $1))::int AS off) SELECT url FROM sites WHERE score >= 0 ORDER BY ctid OFFSET (SELECT off FROM r) LIMIT $1`;
     const result = await client.query<{ url: string }>(sql, params);
     return result.rows.map((r) => r.url);
   } finally {
