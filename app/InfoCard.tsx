@@ -72,9 +72,11 @@ type InfoCardProps = {
   currentUrl: string;
   onOpenTutorial?: () => void;
   onGoToUrl?: (url: string) => void;
+  showNav?: boolean;
+  onToggleNav?: () => void;
 };
 
-export default function InfoCard({ currentUrl, onOpenTutorial, onGoToUrl }: InfoCardProps) {
+export default function InfoCard({ currentUrl, onOpenTutorial, onGoToUrl, showNav, onToggleNav }: InfoCardProps) {
   const [open, setOpen] = useState(false);
   const [savedOpen, setSavedOpen] = useState(false);
   const [saved, setSaved] = useState<string[]>(() => getSavedSites());
@@ -255,7 +257,7 @@ export default function InfoCard({ currentUrl, onOpenTutorial, onGoToUrl }: Info
   );
 
   return (
-    <div className="fixed bottom-6 right-6 z-30 flex flex-col items-end gap-4 font-[family-name:var(--font-nunito)]">
+    <div className="fixed bottom-6 right-6 z-40 flex flex-col items-end gap-4 font-[family-name:var(--font-nunito)]">
       <AnimatePresence>
         {savedOpen && (
           <motion.div
@@ -414,10 +416,19 @@ export default function InfoCard({ currentUrl, onOpenTutorial, onGoToUrl }: Info
             setOpen(false);
             setSavedOpen((o) => !o);
           }}
-          className="min-w-[100px] rounded-full px-4 py-2 text-center bg-amber-100 text-[15px] font-medium text-stone-700 transition-colors hover:bg-amber-200"
+          className="w-[80px] rounded-full text-center bg-amber-100 py-2 text-[15px] font-medium text-stone-700 transition-colors hover:bg-amber-200"
         >
           saved{saved.length > 0 ? ` (${saved.length})` : ""}
         </button>
+        {onToggleNav && (
+          <button
+            type="button"
+            onClick={onToggleNav}
+            className="w-[80px] rounded-full text-center bg-amber-100 py-2 text-[15px] font-medium text-stone-700 transition-colors hover:bg-amber-200"
+          >
+            {showNav ? "hide nav" : "show nav"}
+          </button>
+        )}
       </div>
     </div>
   );

@@ -73,6 +73,7 @@ function getUrlFrom(
 
 export default function Roll() {
   const [showTutorial, setShowTutorial] = useState(false);
+  const [showNav, setShowNav] = useState(true);
   const [current, setCurrent] = useState<string | null>(null);
   const [history, setHistory] = useState<string[]>([]);
   const [historyIdx, setHistoryIdx] = useState(-1);
@@ -562,16 +563,58 @@ export default function Roll() {
           currentUrl={currentUrl}
           onOpenTutorial={() => setShowTutorial(true)}
           onGoToUrl={goToUrl}
+          showNav={showNav}
+          onToggleNav={() => setShowNav((v) => !v)}
         />
       )}
 
-      <button
+      {/* <button
         type="button"
         onClick={() => window.location.reload()}
         className="absolute bottom-6 left-6 z-30 rounded-full bg-amber-100 px-4 py-2 text-[15px] font-medium text-stone-700 transition-colors hover:bg-amber-200 font-[family-name:var(--font-nunito)]"
       >
         Stuck?
-      </button>
+      </button> */}
+
+      {showNav && (
+        <>
+          {/* Left = no like */}
+          <button
+            type="button"
+            onClick={() => handleSwipe("left")}
+            className="fixed left-3 top-1/2 z-30 -translate-y-1/2 rounded-full bg-red-500 px-4 py-2 text-[15px] font-medium text-white transition-colors hover:bg-red-600 font-[family-name:var(--font-nunito)]"
+          >
+            <i className="fa-solid fa-arrow-left fa-xs" />{" "}no like
+          </button>
+
+          {/* Right = like */}
+          <button
+            type="button"
+            onClick={() => handleSwipe("right")}
+            className="fixed right-3 top-1/2 z-30 -translate-y-1/2 rounded-full bg-green-500 px-4 py-2 text-[15px] font-medium text-white transition-colors hover:bg-green-600 font-[family-name:var(--font-nunito)]"
+          >
+            like{" "}<i className="fa-solid fa-arrow-right fa-xs" />
+          </button>
+
+          {/* Up = prev */}
+          <button
+            type="button"
+            onClick={() => handleSwipe("down")}
+            className="fixed left-1/2 top-3 z-30 -translate-x-1/2 rounded-full bg-amber-300 px-4 py-2 text-[15px] font-medium text-stone-800 transition-colors hover:bg-amber-400 font-[family-name:var(--font-nunito)]"
+          >
+            prev
+          </button>
+
+          {/* Down = next */}
+          <button
+            type="button"
+            onClick={() => handleSwipe("up")}
+            className="fixed bottom-6 left-1/2 z-30 -translate-x-1/2 rounded-full bg-amber-300 px-4 py-2 text-[15px] font-medium text-stone-800 transition-colors hover:bg-amber-400 font-[family-name:var(--font-nunito)]"
+          >
+            next
+          </button>
+        </>
+      )}
 
       <div className="relative min-h-0 flex-1 overflow-hidden">
         {uniqueUrls.map((url, i) => {
