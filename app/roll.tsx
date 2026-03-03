@@ -626,7 +626,7 @@ export default function Roll() {
                 </div>
               ) : (
                 <iframe
-                  src={url}
+                  src={url.startsWith("http://") ? "https://" + url.slice(7) : url}
                   className="h-full w-full border-none bg-white"
                   title={url}
                 />
