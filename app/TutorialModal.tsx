@@ -1,7 +1,7 @@
 "use client";
 
-import { AnimatePresence, motion } from "motion/react";
 import { useState } from "react";
+import { AnimatePresence, motion } from "motion/react";
 
 const TUTORIAL_KEY = "sitescroll-seen-tutorial";
 
@@ -85,8 +85,12 @@ export default function TutorialModal({ open, onClose }: TutorialModalProps) {
               </p>
               <div className="mb-4 space-y-2 text-sm text-stone-600">
                 <p className="font-medium text-stone-700">How to use</p>
-                <p>Hold Option and click (right half = like, left half = don&apos;t) to go to the next site. Or use Option+arrow keys: Option+left = swipe left, Option+right or Option+down = next, Option+up = previous.</p>
-                <p>If Option+click doesn&apos;t work — e.g. after clicking inside a site — turn on <strong>Nav</strong> (bottom-left) to click left/right to swipe without holding Option.</p>
+                <ul className="list-disc list-inside space-y-1 pl-1">
+                  <li><strong>Option+left</strong> — swipe left (don&apos;t like)</li>
+                  <li><strong>Option+right</strong> — swipe right (like)</li>
+                  <li><strong>Option+down</strong> — next (no vote). Same: Option+scroll down.</li>
+                  <li><strong>Option+up</strong> — previous. Same: Option+scroll up.</li>
+                </ul>
               </div>
               <div className="mb-4">
                 <label className="mb-1.5 block text-sm font-medium text-stone-700">
@@ -104,15 +108,21 @@ export default function TutorialModal({ open, onClose }: TutorialModalProps) {
                   <span className="mt-1.5 block text-sm font-medium text-green-600">added</span>
                 )}
               </div>
-              <p className="mb-4 text-sm text-stone-600">
-                Want to add more or report issues? Use the actions in the bottom right.
-              </p>
-              <button
-                onClick={onClose}
-                className="w-full rounded-xl border-2 border-amber-200 bg-amber-100 px-4 py-3 text-[15px] font-medium text-stone-700 transition-colors hover:bg-amber-200"
-              >
-                Get started
-              </button>
+              <div className="flex flex-col gap-2">
+                <button
+                  onClick={onClose}
+                  className="w-full rounded-xl border-2 border-amber-200 bg-amber-100 px-4 py-3 text-[15px] font-medium text-stone-700 transition-colors hover:bg-amber-200"
+                >
+                  Got it
+                </button>
+                <button
+                  type="button"
+                  onClick={() => window.location.reload()}
+                  className="w-full rounded-xl border border-stone-300 bg-stone-100 px-4 py-2 text-sm text-stone-600 transition-colors hover:bg-stone-200"
+                >
+                  Stuck? Refresh page
+                </button>
+              </div>
             </motion.div>
           </div>
         </>

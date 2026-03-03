@@ -9,6 +9,7 @@ const BATCH_SIZE = 15;
 const QUEUE_TARGET = 10;
 const LOADING_PLACEHOLDER = "__loading__";
 const SWIPE_DURATION_MS = 400;
+
 const SCROLL_SWIPE_THRESHOLD = 80;
 
 function SwipeOverlay({
@@ -74,11 +75,10 @@ export default function Roll() {
   const [queue, setQueue] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [optionKeyHeld, setOptionKeyHeld] = useState(false);
-  const [navMode, setNavMode] = useState(false);
   const [swipeDir, setSwipeDir] = useState<
     "left" | "right" | "up" | "down" | null
   >(null);
-  const [verticalScrollIndex, setVerticalScrollIndex] = useState(1);
+  const [verticalPhase, setVerticalPhase] = useState<"from" | "to" | null>(null);
   const [loadFailed, setLoadFailed] = useState(false);
   const fetchingRef = useRef(false);
   const focusRef = useRef<HTMLDivElement>(null);
@@ -95,7 +95,7 @@ export default function Roll() {
 
   const currentUrl = getUrlFrom(history, queue, historyIdx) ?? current;
   const nextUrl = getUrlFrom(history, queue, historyIdx + 1) ?? null;
-  const previousUrl = getUrlFrom(history, queue, historyIdx - 1) ?? null;
+  const prevUrl = getUrlFrom(history, queue, historyIdx - 1) ?? null;
 
   const fetchBatch = useCallback(async (): Promise<string[]> => {
     if (fetchingRef.current) return [];
@@ -171,6 +171,13 @@ export default function Roll() {
     setLoading(false);
   }, []);
 
+  const goToUrl = useCallback((url: string) => {
+    setHistory([url]);
+    setHistoryIdx(0);
+    setCurrent(url);
+    setLoading(false);
+  }, []);
+
   const handleSwipe = useCallback(
     (dir: "left" | "right" | "up" | "down") => {
       if (swipingRef.current) {
@@ -186,6 +193,7 @@ export default function Roll() {
       }
       console.log("[ss] handleSwipe", dir);
       const { history: h, historyIdx: idx, queue: q } = stateRef.current;
+      if (dir === "down" && idx < 1) return;
       const site = getUrlFrom(h, q, idx);
       if (
         (dir === "left" || dir === "right") &&
@@ -204,10 +212,12 @@ export default function Roll() {
       swipingRef.current = true;
       swipingStartedAtRef.current = Date.now();
       setSwipeDir(dir);
+      if (dir === "up" || dir === "down") setVerticalPhase("from");
       const safetyId = setTimeout(() => {
         console.log("[ss] safety timeout, clearing swipingRef");
         swipingRef.current = false;
         setSwipeDir(null);
+        setVerticalPhase(null);
       }, 2000);
       setTimeout(() => {
         try {
@@ -216,6 +226,7 @@ export default function Roll() {
         } finally {
           clearTimeout(safetyId);
           setSwipeDir(null);
+          setVerticalPhase(null);
           swipingRef.current = false;
           console.log("[ss] swipe done, swipingRef = false");
         }
@@ -243,32 +254,32 @@ export default function Roll() {
 
       if (scrollAccumRef.current > SCROLL_SWIPE_THRESHOLD) {
         scrollAccumRef.current = 0;
-        handleSwipe("right");
+        handleSwipe("up");
       } else if (scrollAccumRef.current < -SCROLL_SWIPE_THRESHOLD) {
         scrollAccumRef.current = 0;
-        goBack();
+        handleSwipe("down");
       }
     },
-    [handleSwipe, goBack]
+    [handleSwipe]
   );
+
+  useEffect(() => {
+    if (
+      (swipeDir === "up" || swipeDir === "down") &&
+      verticalPhase === "from"
+    ) {
+      const id = requestAnimationFrame(() => {
+        setVerticalPhase("to");
+      });
+      return () => cancelAnimationFrame(id);
+    }
+  }, [swipeDir, verticalPhase]);
 
   useEffect(() => {
     return () => {
       if (scrollResetRef.current) clearTimeout(scrollResetRef.current);
     };
   }, []);
-
-  useEffect(() => {
-    if (swipeDir === "up") {
-      const id = requestAnimationFrame(() => setVerticalScrollIndex(2));
-      return () => cancelAnimationFrame(id);
-    }
-    if (swipeDir === "down") {
-      const id = requestAnimationFrame(() => setVerticalScrollIndex(0));
-      return () => cancelAnimationFrame(id);
-    }
-    if (swipeDir === null) setVerticalScrollIndex(1);
-  }, [swipeDir]);
 
   useEffect(() => {
     setShowTutorial(!getSeenTutorial());
@@ -487,20 +498,15 @@ export default function Roll() {
     );
   }
 
-  const verticalSlots: { url: string; role: "previous" | "current" | "next" }[] =
-    currentUrl
-      ? [
-          { url: previousUrl ?? currentUrl, role: "previous" },
-          { url: currentUrl, role: "current" },
-          { url: nextUrl ?? currentUrl, role: "next" },
-        ]
-      : [];
-  const isVerticalTransition = swipeDir === "up" || swipeDir === "down";
-  const verticalTranslate = `-${verticalScrollIndex * 33.333}%`;
+  const isVertical = swipeDir === "up" || swipeDir === "down";
+  const verticalUrls =
+    swipeDir === "down" && prevUrl
+      ? [prevUrl, currentUrl]
+      : [currentUrl, nextUrl].filter((u): u is string => !!u);
   const visibleUrls = [currentUrl, nextUrl].filter(
     (u): u is string => !!u
   );
-  const uniqueUrls = [...new Set(visibleUrls)];
+  const uniqueUrls = isVertical ? verticalUrls : [...new Set(visibleUrls)];
 
   return (
     <div
@@ -518,19 +524,13 @@ export default function Roll() {
         id="iframe-overlay"
         className="absolute inset-0 z-20"
         style={{
-          pointerEvents: navMode || optionKeyHeld ? "auto" : "none",
-          cursor: navMode || optionKeyHeld ? "pointer" : undefined,
+          pointerEvents: optionKeyHeld ? "auto" : "none",
+          cursor: optionKeyHeld ? "pointer" : undefined,
         }}
         onWheel={handleOptionScroll}
         onClick={(e) => {
           const dir: "left" | "right" =
             e.clientX < window.innerWidth / 2 ? "left" : "right";
-          if (navMode) {
-            e.preventDefault();
-            e.stopPropagation();
-            handleSwipe(dir);
-            return;
-          }
           if (!e.altKey) {
             setOptionKeyHeld(false);
             return;
@@ -549,107 +549,85 @@ export default function Roll() {
         }}
       />
       {currentUrl !== LOADING_PLACEHOLDER && (
-        <button
-          type="button"
-          onClick={() => setNavMode((prev) => !prev)}
-          className={`fixed bottom-6 left-6 z-30 rounded-full px-4 py-2 text-sm font-medium shadow-sm ${
-            navMode
-              ? "bg-amber-500 text-zinc-900 hover:bg-amber-400"
-              : "bg-amber-100/90 text-stone-600 hover:bg-amber-200/90 hover:text-stone-800"
-          }`}
-          title={navMode ? "Nav mode on — click left/right to swipe" : "Turn on nav mode to swipe without holding Option"}
-        >
-          {navMode ? "Nav on" : "Nav"}
-        </button>
-      )}
-      {currentUrl !== LOADING_PLACEHOLDER && (
         <InfoCard
-        currentUrl={currentUrl}
-        onOpenTutorial={() => setShowTutorial(true)}
-      />
+          currentUrl={currentUrl}
+          onOpenTutorial={() => setShowTutorial(true)}
+          onGoToUrl={goToUrl}
+        />
       )}
 
       <div className="relative min-h-0 flex-1 overflow-hidden">
-        {isVerticalTransition ? (
-          <div
-            className="w-full transition-transform"
-            style={{
-              height: "300%",
-              transform: `translateY(${verticalTranslate})`,
-              transitionDuration: `${SWIPE_DURATION_MS}ms`,
-              transitionTimingFunction: "cubic-bezier(0.4, 0, 0.2, 1)",
-            }}
-          >
-            {verticalSlots.map(({ url, role }) => (
-              <div
-                key={`${role}-${url}`}
-                className="flex h-[33.333%] flex-shrink-0 flex-col bg-white"
-              >
-                {url === LOADING_PLACEHOLDER ? (
-                  <div className="flex h-full w-full items-center justify-center bg-white">
-                    <LoaderGrid />
-                  </div>
-                ) : (
-                  <iframe
-                    src={url}
-                    className="h-full w-full border-none bg-white"
-                    onLoad={() => {
-                      if (url === currentUrl) setLoading(false);
-                    }}
-                    title={url}
-                  />
-                )}
-              </div>
-            ))}
-          </div>
-        ) : (
-          uniqueUrls.map((url) => {
-            const isCurrent = url === currentUrl;
-            let transform = "none";
-            let transition = "none";
-            let origin = "center";
+        {uniqueUrls.map((url, i) => {
+          const isCurrent = url === currentUrl;
+          const isVerticalFrom = isVertical && verticalPhase === "from";
+          const isVerticalTo = isVertical && verticalPhase === "to";
 
-            if (isCurrent && swipeDir && (swipeDir === "left" || swipeDir === "right")) {
-              transform =
-                swipeDir === "left"
-                  ? "translateX(-120%) rotate(-12deg)"
-                  : "translateX(120%) rotate(12deg)";
-              origin = swipeDir === "left" ? "bottom left" : "bottom right";
-              transition = `transform ${SWIPE_DURATION_MS}ms cubic-bezier(0.4, 0, 0.2, 1)`;
+          let transform = "none";
+          let transition = "none";
+          let origin = "center";
+
+          if (isVertical && (swipeDir === "up" || swipeDir === "down")) {
+            const ease = `cubic-bezier(0.4, 0, 0.2, 1)`;
+            transition = `transform ${SWIPE_DURATION_MS}ms ${ease}`;
+            if (swipeDir === "up") {
+              if (i === 0) {
+                transform = isVerticalFrom ? "translateY(0)" : "translateY(-100%)";
+              } else {
+                transform = isVerticalFrom ? "translateY(100%)" : "translateY(0)";
+              }
+              origin = "center top";
+            } else {
+              if (i === 0) {
+                transform = isVerticalFrom ? "translateY(-100%)" : "translateY(0)";
+              } else {
+                transform = isVerticalFrom ? "translateY(0)" : "translateY(100%)";
+              }
+              origin = "center bottom";
             }
+          } else if (isCurrent && swipeDir && (swipeDir === "left" || swipeDir === "right")) {
+            if (swipeDir === "left") {
+              transform = "translateX(-120%) rotate(-12deg)";
+              origin = "bottom left";
+            } else {
+              transform = "translateX(120%) rotate(12deg)";
+              origin = "bottom right";
+            }
+            transition = `transform ${SWIPE_DURATION_MS}ms cubic-bezier(0.4, 0, 0.2, 1)`;
+          }
 
-            return (
-              <div
-                key={url}
-                className="absolute inset-0 bg-white"
-                style={{
-                  zIndex: isCurrent ? 1 : 0,
-                  transform,
-                  transition,
-                  transformOrigin: origin,
-                }}
-              >
-                {isCurrent && swipeDir && (
+          return (
+            <div
+              key={url}
+              className="absolute inset-0 bg-white"
+              style={{
+                zIndex: isCurrent ? 1 : 0,
+                transform,
+                transition,
+                transformOrigin: origin,
+              }}
+            >
+              {isCurrent &&
+                swipeDir &&
+                (swipeDir === "left" || swipeDir === "right") && (
                   <SwipeOverlay dir={swipeDir} visible />
                 )}
-                {url === LOADING_PLACEHOLDER ? (
-                  <div className="flex h-full w-full items-center justify-center bg-white">
-                    <LoaderGrid />
-                  </div>
-                ) : (
-                  <iframe
-                    src={url}
-                    className="h-full w-full border-none bg-white"
-                    onLoad={() => {
-                      if (url === currentUrl) setLoading(false);
-                    }}
-                    title={url}
-                  />
-                )}
-              </div>
-            );
-          })
-        )}
+              {url === LOADING_PLACEHOLDER ? (
+                <div className="flex h-full w-full items-center justify-center bg-white">
+                  <LoaderGrid />
+                </div>
+              ) : (
+                <iframe
+                  src={url}
+                  className="h-full w-full border-none bg-white"
+                  onLoad={() => {
+                    if (url === currentUrl) setLoading(false);
+                  }}
+                  title={url}
+                />
+              )}
+            </div>
+          );
+        })}
       </div>
     </div>
   );
