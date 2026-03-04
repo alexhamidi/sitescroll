@@ -5,15 +5,19 @@ RETURNS setof text
 LANGUAGE sql
 VOLATILE
 AS $$
-  WITH total AS (
-    SELECT count(*)::int AS n FROM sites WHERE score >= 0
+  WITH sample AS (
+    SELECT url, score, random() AS r FROM sites TABLESAMPLE BERNOULLI(1)
   ),
-  r AS (
-    SELECT floor(random() * greatest(0, (SELECT n FROM total) - lim))::int AS off
+  top AS (
+    SELECT url FROM sample ORDER BY score DESC LIMIT (lim / 2)
+  ),
+  rest AS (
+    SELECT url FROM sample
+    WHERE url NOT IN (SELECT url FROM top)
+    ORDER BY r
+    LIMIT (lim - lim / 2)
   )
-  SELECT url FROM sites
-  WHERE score >= 0
-  ORDER BY ctid
-  OFFSET (SELECT off FROM r)
-  LIMIT lim;
+  SELECT url FROM top
+  UNION ALL
+  SELECT url FROM rest;
 $$;
