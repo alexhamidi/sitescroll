@@ -74,9 +74,10 @@ type InfoCardProps = {
   onGoToUrl?: (url: string) => void;
   showNav?: boolean;
   onToggleNav?: () => void;
+  nextButton?: React.ReactNode;
 };
 
-export default function InfoCard({ currentUrl, onOpenTutorial, onGoToUrl, showNav, onToggleNav }: InfoCardProps) {
+export default function InfoCard({ currentUrl, onOpenTutorial, onGoToUrl, showNav, onToggleNav, nextButton }: InfoCardProps) {
   const [open, setOpen] = useState(false);
   const [savedOpen, setSavedOpen] = useState(false);
   const [saved, setSaved] = useState<string[]>(() => getSavedSites());
@@ -257,7 +258,10 @@ export default function InfoCard({ currentUrl, onOpenTutorial, onGoToUrl, showNa
   );
 
   return (
-    <div className="fixed bottom-6 right-6 z-40 flex flex-col items-end gap-4 font-[family-name:var(--font-nunito)]">
+    <div
+      className="fixed left-4 right-4 z-40 flex flex-col items-end gap-4 font-[family-name:var(--font-nunito)] sm:left-6 sm:right-6"
+      style={{ bottom: "max(1.5rem, env(safe-area-inset-bottom))" }}
+    >
       <AnimatePresence>
         {savedOpen && (
           <motion.div
@@ -385,53 +389,57 @@ export default function InfoCard({ currentUrl, onOpenTutorial, onGoToUrl, showNa
         )}
       </AnimatePresence>
 
-      <div className="flex items-center gap-4">
-        {hostname && (
-          <a
-            href={currentUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-base font-semibold text-stone-700 underline decoration-amber-300 underline-offset-2 transition-colors hover:text-stone-900 hover:decoration-amber-400"
-          >
-            {hostname}
-          </a>
-        )}
-        <button
-          type="button"
-          onClick={toggleSave}
-          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-amber-100 text-stone-700 transition-colors hover:bg-amber-200"
-          aria-label={isCurrentSaved ? "Unsave" : "Save"}
-          title={isCurrentSaved ? "Unsave" : "Save"}
-        >
-          <i className={`fa-bookmark fa-lg ${isCurrentSaved ? "fa-solid" : "fa-regular"}`} />
-        </button>
-        <button
-          onClick={() => {
-            setSavedOpen(false);
-            setOpen((o) => !o);
-          }}
-          className={`w-[80px] rounded-full text-center py-2 text-[15px] font-medium text-stone-700 transition-colors hover:bg-amber-200 ${open ? "bg-amber-200" : "bg-amber-100"}`}
-        >
-          {open ? "close" : "actions"}
-        </button>
-        <button
-          onClick={() => {
-            setOpen(false);
-            setSavedOpen((o) => !o);
-          }}
-          className={`w-[80px] rounded-full text-center py-2 text-[15px] font-medium text-stone-700 transition-colors hover:bg-amber-200 ${savedOpen ? "bg-amber-200" : "bg-amber-100"}`}
-        >
-          saved{saved.length > 0 ? ` (${saved.length})` : ""}
-        </button>
-        {onToggleNav && (
+      <div className="flex h-10 w-full items-center justify-between gap-2 md:w-auto md:justify-end md:gap-4">
+        <div className="flex min-w-0 shrink items-center gap-2">
+          {hostname && (
+            <a
+              href={currentUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="truncate text-base font-semibold text-stone-700 underline decoration-amber-300 underline-offset-2 transition-colors hover:text-stone-900 hover:decoration-amber-400"
+            >
+              {hostname}
+            </a>
+          )}
           <button
             type="button"
-            onClick={onToggleNav}
-            className="w-[80px] rounded-full text-center bg-amber-100 py-2 text-[15px] font-medium text-stone-700 transition-colors hover:bg-amber-200"
+            onClick={toggleSave}
+            className="hidden h-10 w-10 shrink-0 items-center justify-center rounded-full bg-amber-100 text-stone-700 transition-colors hover:bg-amber-200 md:flex"
+            aria-label={isCurrentSaved ? "Unsave" : "Save"}
+            title={isCurrentSaved ? "Unsave" : "Save"}
           >
-            {showNav ? "hide nav" : "show nav"}
+            <i className={`fa-bookmark fa-lg ${isCurrentSaved ? "fa-solid" : "fa-regular"}`} />
           </button>
-        )}
+        </div>
+        <div className="flex shrink-0 items-center gap-2">
+          <button
+            onClick={() => {
+              setSavedOpen(false);
+              setOpen((o) => !o);
+            }}
+            className={`flex h-10 w-[80px] items-center justify-center rounded-full text-[15px] font-medium text-stone-700 transition-colors hover:bg-amber-200 ${open ? "bg-amber-200" : "bg-amber-100"}`}
+          >
+            {open ? "close" : "actions"}
+          </button>
+          <button
+            onClick={() => {
+              setOpen(false);
+              setSavedOpen((o) => !o);
+            }}
+            className={`hidden h-10 w-[80px] rounded-full text-center text-[15px] font-medium text-stone-700 transition-colors hover:bg-amber-200 md:inline-flex md:items-center md:justify-center ${savedOpen ? "bg-amber-200" : "bg-amber-100"}`}
+          >
+            saved{saved.length > 0 ? ` (${saved.length})` : ""}
+          </button>
+          {onToggleNav && (
+            <button
+              type="button"
+              onClick={onToggleNav}
+              className="flex h-10 w-[80px] items-center justify-center rounded-full bg-amber-100 text-[15px] font-medium text-stone-700 transition-colors hover:bg-amber-200"
+            >
+              {showNav ? "hide nav" : "show nav"}
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );

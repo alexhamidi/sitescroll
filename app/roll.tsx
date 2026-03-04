@@ -622,7 +622,7 @@ export default function Roll() {
           <button
             type="button"
             onClick={() => handleSwipe("up")}
-            className="fixed bottom-6 left-1/2 z-30 -translate-x-1/2 rounded-full bg-amber-100 px-4 py-2 text-[15px] font-medium text-stone-700 transition-colors hover:bg-amber-200 font-[family-name:var(--font-nunito)]"
+            className="fixed bottom-6 left-1/2 z-30 flex h-10 -translate-x-1/2 items-center rounded-full bg-amber-100 px-4 text-[15px] font-medium text-stone-700 transition-colors hover:bg-amber-200 font-[family-name:var(--font-nunito)]"
           >
             next
           </button>
