@@ -56,10 +56,6 @@ type InfoCardProps = {
 
 export default function InfoCard({ currentUrl, onOpenTutorial, onOpenUpdate, onGoToUrl, showNav, onToggleNav }: InfoCardProps) {
   const [hasUnseenUpdate] = useState(() => !getSeenUpdate());
-  const [joinedDiscord, setJoinedDiscord] = useState(() => {
-    if (typeof window === "undefined") return false;
-    return localStorage.getItem("sitescroll-joined-discord") === "1";
-  });
   const [showRating, setShowRating] = useState(() => {
     if (typeof window === "undefined") return true;
     const v = localStorage.getItem("sitescroll-show-rating");
@@ -73,6 +69,11 @@ export default function InfoCard({ currentUrl, onOpenTutorial, onOpenUpdate, onG
   const [showSiteUrl, setShowSiteUrl] = useState(() => {
     if (typeof window === "undefined") return true;
     const v = localStorage.getItem("sitescroll-show-site-url");
+    return v === null ? true : v === "true";
+  });
+  const [showDiscord, setShowDiscord] = useState(() => {
+    if (typeof window === "undefined") return true;
+    const v = localStorage.getItem("sitescroll-show-discord");
     return v === null ? true : v === "true";
   });
   const [open, setOpen] = useState(false);
@@ -219,10 +220,24 @@ export default function InfoCard({ currentUrl, onOpenTutorial, onOpenUpdate, onG
     );
 
   return (
-    <div className="fixed bottom-2 right-6 z-40 flex flex-col items-end gap-2 font-[family-name:var(--font-nunito)]">
+    <>
+      {showSiteUrl && hostname && (
+        <div className="fixed bottom-[max(0.5rem,env(safe-area-inset-bottom))] left-[max(0.5rem,env(safe-area-inset-left))] z-40 font-[family-name:var(--font-nunito)] sm:left-6">
+          <a
+            href={currentUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex h-9 max-w-[calc(100vw-11rem)] sm:max-w-[280px] items-center gap-1.5 rounded-full bg-amber-100 px-3 py-2 text-sm font-medium text-stone-700 hover:bg-amber-200 min-w-0 sm:h-10 sm:px-4 sm:text-[15px]"
+          >
+            <span className="truncate">{hostname}</span>
+            <i className="fa-solid fa-arrow-up-right-from-square fa-xs shrink-0" />
+          </a>
+        </div>
+      )}
+      <div className="fixed bottom-[max(0.5rem,env(safe-area-inset-bottom))] left-[max(0.5rem,env(safe-area-inset-left))] right-[max(0.5rem,env(safe-area-inset-right))] z-40 flex max-w-full flex-col items-end gap-2 font-[family-name:var(--font-nunito)] sm:left-auto sm:right-6">
       {savedOpen && (
         <div
-          className="mb-2 w-[280px] max-w-[calc(100vw-3rem)] rounded-2xl bg-amber-50/95 px-5 py-4 shadow-xl shadow-amber-900/5"
+          className="mb-2 w-full max-w-[280px] rounded-2xl bg-amber-50/95 px-4 py-3 shadow-xl shadow-amber-900/5 sm:px-5 sm:py-4"
           style={{
             backdropFilter: "blur(12px)",
             WebkitBackdropFilter: "blur(12px)",
@@ -233,7 +248,7 @@ export default function InfoCard({ currentUrl, onOpenTutorial, onOpenUpdate, onG
       )}
       {open && (
         <div
-          className="mb-2 w-[320px] max-w-[calc(100vw-3rem)] rounded-2xl bg-amber-50/95 px-6 py-6 shadow-xl shadow-amber-900/5"
+          className="mb-2 w-full max-w-[320px] rounded-2xl bg-amber-50/95 px-4 py-4 shadow-xl shadow-amber-900/5 sm:px-6 sm:py-6"
           style={{
             backdropFilter: "blur(12px)",
             WebkitBackdropFilter: "blur(12px)",
@@ -259,6 +274,7 @@ export default function InfoCard({ currentUrl, onOpenTutorial, onOpenUpdate, onG
                 ["Site URL", showSiteUrl, setShowSiteUrl, "sitescroll-show-site-url"] as const,
                 ["Bookmarks", showBookmarks, setShowBookmarks, "sitescroll-show-bookmarks"] as const,
                 ["Rating", showRating, setShowRating, "sitescroll-show-rating"] as const,
+                ["Discord button", showDiscord, setShowDiscord, "sitescroll-show-discord"] as const,
               ]).map(([label, value, setter, key]) => (
                 <div key={key} className="flex items-center justify-between">
                   <span className="text-sm font-medium text-stone-700">{label}</span>
@@ -294,15 +310,11 @@ export default function InfoCard({ currentUrl, onOpenTutorial, onOpenUpdate, onG
                 <span className="absolute right-0 top-0 text-[11px] font-medium text-green-600">added</span>
               )}
             </div>
-            {!joinedDiscord && (
+            {showDiscord && (
               <a
                 href="https://discord.gg/tKwAnxbA"
                 target="_blank"
                 rel="noopener noreferrer"
-                onClick={() => {
-                  localStorage.setItem("sitescroll-joined-discord", "1");
-                  setJoinedDiscord(true);
-                }}
                 className="flex items-center justify-center gap-2 rounded-xl bg-indigo-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-indigo-600"
               >
                 <i className="fa-brands fa-discord" />
@@ -311,7 +323,7 @@ export default function InfoCard({ currentUrl, onOpenTutorial, onOpenUpdate, onG
             )}
           </div>
 
-          <p className="mt-5 border-t border-stone-200 pt-4 text-center text-sm text-stone-500">
+          <p className="mt-5 border-t border-stone-200 pt-4 text-center text-xs text-stone-500 sm:text-sm">
             {totalVisits != null && (
               <>
                 <span className="text-stone-600">{totalVisits.toLocaleString()} total visits</span>
@@ -349,25 +361,13 @@ export default function InfoCard({ currentUrl, onOpenTutorial, onOpenUpdate, onG
         </div>
       )}
 
-      <div className="flex items-center gap-4">
-        {showSiteUrl && hostname && (
-          <a
-            href={currentUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex h-10 items-center gap-1.5 rounded-full bg-amber-100 px-4 text-[15px] font-medium text-stone-700 hover:bg-amber-200"
-          >
-            {hostname}
-            <i className="fa-solid fa-arrow-up-right-from-square fa-xs" />
-          </a>
-        )}
-
+      <div className="flex flex-wrap items-center justify-end gap-2 sm:gap-4">
         {showBookmarks && (
           <>
             <button
               type="button"
               onClick={toggleSave}
-              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-amber-100 text-stone-700 hover:bg-amber-200"
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-amber-100 text-stone-700 hover:bg-amber-200 sm:h-10 sm:w-10"
               aria-label={isCurrentSaved ? "Unsave" : "Save"}
               title={isCurrentSaved ? "Unsave" : "Save"}
             >
@@ -378,7 +378,7 @@ export default function InfoCard({ currentUrl, onOpenTutorial, onOpenUpdate, onG
                 setOpen(false);
                 setSavedOpen((o) => !o);
               }}
-              className={`w-[80px] rounded-full text-center py-2 text-[15px] font-medium text-stone-700 hover:bg-amber-200 ${savedOpen ? "bg-amber-300" : "bg-amber-100"}`}
+              className={`min-w-0 rounded-full px-3 py-2 text-center text-sm font-medium text-stone-700 hover:bg-amber-200 sm:w-[80px] sm:px-0 sm:text-[15px] ${savedOpen ? "bg-amber-300" : "bg-amber-100"}`}
             >
               saved{saved.length > 0 ? ` (${saved.length})` : ""}
             </button>
@@ -390,7 +390,7 @@ export default function InfoCard({ currentUrl, onOpenTutorial, onOpenUpdate, onG
             <button
               type="button"
               onClick={() => castVote("up")}
-              className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-stone-700 hover:bg-amber-200 ${vote === "up" ? "bg-amber-300" : "bg-amber-100"}`}
+              className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-stone-700 hover:bg-amber-200 sm:h-10 sm:w-10 ${vote === "up" ? "bg-amber-300" : "bg-amber-100"}`}
               aria-label="Thumbs up"
               title="Like"
             >
@@ -399,7 +399,7 @@ export default function InfoCard({ currentUrl, onOpenTutorial, onOpenUpdate, onG
             <button
               type="button"
               onClick={() => castVote("down")}
-              className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-stone-700 hover:bg-amber-200 ${vote === "down" ? "bg-amber-300" : "bg-amber-100"}`}
+              className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-stone-700 hover:bg-amber-200 sm:h-10 sm:w-10 ${vote === "down" ? "bg-amber-300" : "bg-amber-100"}`}
               aria-label="Thumbs down"
               title="Dislike"
             >
@@ -412,7 +412,7 @@ export default function InfoCard({ currentUrl, onOpenTutorial, onOpenUpdate, onG
           type="button"
           onClick={submitReport}
           disabled={reportStatus !== "idle"}
-          className="w-[80px] rounded-full text-center bg-amber-100 py-2 text-[15px] font-medium text-stone-700 hover:bg-amber-200 disabled:opacity-50"
+          className="min-w-0 rounded-full bg-amber-100 px-3 py-2 text-center text-sm font-medium text-stone-700 hover:bg-amber-200 disabled:opacity-50 sm:w-[80px] sm:px-0 sm:text-[15px]"
         >
           {reportStatus === "done" ? "reported" : "report"}
         </button>
@@ -421,11 +421,12 @@ export default function InfoCard({ currentUrl, onOpenTutorial, onOpenUpdate, onG
             setSavedOpen(false);
             setOpen((o) => !o);
           }}
-          className={`w-[80px] rounded-full text-center py-2 text-[15px] font-medium text-stone-700 hover:bg-amber-200 ${open ? "bg-amber-300" : "bg-amber-100"}`}
+          className={`min-w-0 rounded-full px-3 py-2 text-center text-sm font-medium text-stone-700 hover:bg-amber-200 sm:w-[80px] sm:px-0 sm:text-[15px] ${open ? "bg-amber-300" : "bg-amber-100"}`}
         >
           {open ? "close" : "more"}
         </button>
       </div>
     </div>
+    </>
   );
 }
