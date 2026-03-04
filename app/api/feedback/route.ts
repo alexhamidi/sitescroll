@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { hasDb, insertFeedback } from "@/app/lib/db";
+import { hasDb, insertReport } from "@/app/lib/db";
 import { getClientIp, checkRateLimit, RATE_LIMITS } from "@/app/lib/rateLimit";
 
 export async function POST(req: Request) {
@@ -18,18 +18,15 @@ export async function POST(req: Request) {
   }
 
   let normalized = url;
-  if (!/^https?:\/\//i.test(normalized)) {
-    normalized = "https://" + normalized;
-  }
-  try {
-    new URL(normalized);
-  } catch {
-    return NextResponse.json({ error: "Invalid URL" }, { status: 400 });
+  if (/^https?:\/\//i.test(normalized)) {
+    try { new URL(normalized); } catch {
+      return NextResponse.json({ error: "Invalid URL" }, { status: 400 });
+    }
   }
 
   if (hasDb()) {
     try {
-      await insertFeedback(normalized, message);
+      await insertReport(normalized, message);
       return NextResponse.json({ ok: true });
     } catch (e) {
       console.error("DB insert feedback:", e);

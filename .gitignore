@@ -25,3 +25,4 @@ pipeline
 
 # TypeScript
 *.tsbuildinfo
+scripts

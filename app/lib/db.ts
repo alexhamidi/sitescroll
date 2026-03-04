@@ -92,15 +92,6 @@ export async function insertReport(url: string, comment: string | null): Promise
   });
 }
 
-export async function insertFeedback(url: string, message: string): Promise<void> {
-  await withClient(async (client) => {
-    await client.query(
-      "INSERT INTO feedback (url, message) VALUES ($1, $2)",
-      [url, message]
-    );
-  });
-}
-
 export async function getSiteScore(url: string): Promise<number> {
   const { rows } = await query<{ score: number }>(
     "SELECT score FROM sites WHERE url = $1",
@@ -122,19 +113,26 @@ export async function getSiteSource(
     : { source: null, source_url: null };
 }
 
-export async function incrementVisits(url: string): Promise<void> {
-  await query(
-    "UPDATE sites SET visits = visits + 1 WHERE url = $1",
-    [url]
-  );
-}
-
 export async function updateSiteScore(url: string, delta: number): Promise<number> {
   const { rows } = await query<{ score: number }>(
     "UPDATE sites SET score = score + $2 WHERE url = $1 RETURNING score",
     [url, delta]
   );
   return rows[0]?.score ?? 0;
+}
+
+export async function incrementVisits(url: string): Promise<void> {
+  await query(
+    "UPDATE sites SET visits = COALESCE(visits, 0) + 1 WHERE url = $1",
+    [url]
+  );
+}
+
+export async function getTotalVisits(): Promise<number> {
+  const { rows } = await query<{ total: string }>(
+    "SELECT COALESCE(SUM(visits), 0)::text AS total FROM sites"
+  );
+  return Number(rows[0]?.total ?? 0);
 }
 
 export type IdeaRow = {

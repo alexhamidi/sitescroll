@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback, useRef } from "react";
 import InfoCard from "./InfoCard";
-import TutorialModal, { getSeenTutorial, setSeenTutorial } from "./TutorialModal";
+import TutorialModal, { getSeenTutorial, setSeenTutorial, UpdateModal, getSeenUpdate, setSeenUpdate } from "./TutorialModal";
 import {
   isNeonDataApiConfigured,
   fetchRandomSitesFromNeon,
@@ -73,6 +73,7 @@ function getUrlFrom(
 
 export default function Roll() {
   const [showTutorial, setShowTutorial] = useState(false);
+  const [showUpdate, setShowUpdate] = useState(false);
   const [showNav, setShowNav] = useState(() => {
     if (typeof window === "undefined") return true;
     const saved = localStorage.getItem("sitescroll-show-nav");
@@ -205,21 +206,21 @@ export default function Roll() {
       console.log("[ss] handleSwipe", dir);
       const { history: h, historyIdx: idx, queue: q } = stateRef.current;
       if (dir === "down" && idx < 1) return;
-      const site = getUrlFrom(h, q, idx);
-      if (
-        (dir === "left" || dir === "right") &&
-        site &&
-        site !== LOADING_PLACEHOLDER
-      ) {
-        fetch("/api/votes", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            site,
-            direction: dir === "left" ? "down" : "up",
-          }),
-        }).catch(() => {});
-      }
+      const _site = getUrlFrom(h, q, idx);
+      // if (
+      //   (dir === "left" || dir === "right") &&
+      //   _site &&
+      //   _site !== LOADING_PLACEHOLDER
+      // ) {
+      //   fetch("/api/votes", {
+      //     method: "POST",
+      //     headers: { "Content-Type": "application/json" },
+      //     body: JSON.stringify({
+      //       site: _site,
+      //       direction: dir === "left" ? "down" : "up",
+      //     }),
+      //   }).catch(() => {});
+      // }
       swipingRef.current = true;
       swipingStartedAtRef.current = Date.now();
       setSwipeDir(dir);
@@ -294,6 +295,7 @@ export default function Roll() {
 
   useEffect(() => {
     setShowTutorial(!getSeenTutorial());
+    setShowUpdate(!getSeenUpdate());
   }, []);
 
   useEffect(() => {
@@ -336,11 +338,6 @@ export default function Roll() {
       typeof window !== "undefined"
     ) {
       localStorage.setItem(STORAGE_KEY, currentUrl);
-      fetch("/api/visit", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url: currentUrl }),
-      }).catch(() => {});
     }
   }, [currentUrl]);
 
@@ -567,10 +564,18 @@ export default function Roll() {
           setShowTutorial(false);
         }}
       />
+      <UpdateModal
+        open={!showTutorial && showUpdate}
+        onClose={() => {
+          setSeenUpdate();
+          setShowUpdate(false);
+        }}
+      />
       {currentUrl !== LOADING_PLACEHOLDER && (
         <InfoCard
           currentUrl={currentUrl}
           onOpenTutorial={() => setShowTutorial(true)}
+          onOpenUpdate={() => setShowUpdate(true)}
           onGoToUrl={goToUrl}
           showNav={showNav}
           onToggleNav={() => setShowNav((v) => {
@@ -592,22 +597,22 @@ export default function Roll() {
       {showNav && (
         <>
           {/* Left = no like */}
-          <button
+          {/* <button
             type="button"
             onClick={() => handleSwipe("left")}
             className="fixed left-3 top-1/2 z-30 -translate-y-1/2 rounded-full bg-amber-100 px-4 py-2 text-[15px] font-medium text-stone-700 transition-colors hover:bg-amber-200 font-[family-name:var(--font-nunito)]"
           >
             <i className="fa-solid fa-arrow-left fa-xs" />{" "}no like
-          </button>
+          </button> */}
 
           {/* Right = like */}
-          <button
+          {/* <button
             type="button"
             onClick={() => handleSwipe("right")}
             className="fixed right-3 top-1/2 z-30 -translate-y-1/2 rounded-full bg-amber-100 px-4 py-2 text-[15px] font-medium text-stone-700 transition-colors hover:bg-amber-200 font-[family-name:var(--font-nunito)]"
           >
             like{" "}<i className="fa-solid fa-arrow-right fa-xs" />
-          </button>
+          </button> */}
 
           {/* Up = prev */}
           <button
@@ -622,7 +627,7 @@ export default function Roll() {
           <button
             type="button"
             onClick={() => handleSwipe("up")}
-            className="fixed bottom-6 left-1/2 z-30 flex h-10 -translate-x-1/2 items-center rounded-full bg-amber-100 px-4 text-[15px] font-medium text-stone-700 transition-colors hover:bg-amber-200 font-[family-name:var(--font-nunito)]"
+            className="fixed bottom-2 left-1/2 z-30 -translate-x-1/2 rounded-full bg-amber-100 px-4 py-2 text-[15px] font-medium text-stone-700 transition-colors hover:bg-amber-200 font-[family-name:var(--font-nunito)]"
           >
             next
           </button>
