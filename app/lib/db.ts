@@ -92,6 +92,15 @@ export async function insertReport(url: string, comment: string | null): Promise
   });
 }
 
+export async function insertFeedback(url: string, message: string): Promise<void> {
+  await withClient(async (client) => {
+    await client.query(
+      "INSERT INTO feedback (url, message) VALUES ($1, $2)",
+      [url, message]
+    );
+  });
+}
+
 export async function getSiteScore(url: string): Promise<number> {
   const { rows } = await query<{ score: number }>(
     "SELECT score FROM sites WHERE url = $1",

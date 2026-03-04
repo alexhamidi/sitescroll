@@ -141,10 +141,10 @@ export default function InfoCard({ currentUrl, onOpenTutorial, onGoToUrl, showNa
     if (!feedbackText.trim() || feedbackStatus === "sending" || !currentUrl) return;
     setFeedbackStatus("sending");
     try {
-      const res = await fetch("/api/report", {
+      const res = await fetch("/api/feedback", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url: currentUrl, feedback: feedbackText.trim() }),
+        body: JSON.stringify({ url: currentUrl, message: feedbackText.trim() }),
       });
       if (res.ok) {
         setFeedbackText("");
@@ -305,9 +305,14 @@ export default function InfoCard({ currentUrl, onOpenTutorial, onGoToUrl, showNa
               </a>
             )}
             <div>
-              <label className="mb-1.5 block text-sm font-medium text-stone-700">
-                Report <span className="font-semibold text-stone-700">{hostname}</span>
-              </label>
+              <div className="mb-1.5 flex items-center justify-between">
+                <label className="text-sm font-medium text-stone-700">
+                  Report <span className="font-semibold">{hostname}</span>
+                </label>
+                {reportStatus === "done" && (
+                  <span className="text-sm font-medium text-green-700">done</span>
+                )}
+              </div>
               <input
                 type="text"
                 value={reportFeedback}
@@ -316,15 +321,15 @@ export default function InfoCard({ currentUrl, onOpenTutorial, onGoToUrl, showNa
                 placeholder="e.g. broken, spam, nsfw..."
                 className="w-full rounded-xl border-2 border-stone-200 bg-white px-4 py-3 text-[15px] text-stone-800 placeholder-stone-400 outline-none transition-colors focus:border-amber-400 focus:ring-2 focus:ring-amber-200"
               />
-              {reportStatus === "done" && (
-                <span className="mt-1.5 block text-sm font-medium text-green-600">Reported</span>
-              )}
             </div>
 
-            <div className="relative">
-              <label className="mb-1.5 block text-sm font-medium text-stone-700">
-                Add a site
-              </label>
+            <div>
+              <div className="mb-1.5 flex items-center justify-between">
+                <label className="text-sm font-medium text-stone-700">Add a site</label>
+                {addStatus === "done" && (
+                  <span className="text-sm font-medium text-green-700">done</span>
+                )}
+              </div>
               <input
                 type="text"
                 value={addUrl}
@@ -333,14 +338,15 @@ export default function InfoCard({ currentUrl, onOpenTutorial, onGoToUrl, showNa
                 placeholder="https://yoursite.com"
                 className="w-full rounded-xl border-2 border-stone-200 bg-white px-4 py-3 text-[15px] text-stone-800 placeholder-stone-400 outline-none transition-colors focus:border-amber-400 focus:ring-2 focus:ring-amber-200"
               />
-              {addStatus === "done" && (
-                <span className="absolute right-0 top-0 text-[11px] font-medium text-green-600">added</span>
-              )}
             </div>
+
             <div>
-              <label className="mb-1.5 block text-sm font-medium text-stone-700">
-                Feedback
-              </label>
+              <div className="mb-1.5 flex items-center justify-between">
+                <label className="text-sm font-medium text-stone-700">Feedback</label>
+                {feedbackStatus === "done" && (
+                  <span className="text-sm font-medium text-green-700">done</span>
+                )}
+              </div>
               <input
                 type="text"
                 value={feedbackText}
@@ -349,9 +355,6 @@ export default function InfoCard({ currentUrl, onOpenTutorial, onGoToUrl, showNa
                 placeholder="Suggestions, bugs, other feedback..."
                 className="w-full rounded-xl border-2 border-stone-200 bg-white px-4 py-3 text-[15px] text-stone-800 placeholder-stone-400 outline-none transition-colors focus:border-amber-400 focus:ring-2 focus:ring-amber-200"
               />
-              {feedbackStatus === "done" && (
-                <span className="mt-1.5 block text-sm font-medium text-green-600">Thanks</span>
-              )}
             </div>
           </div>
 
@@ -407,7 +410,7 @@ export default function InfoCard({ currentUrl, onOpenTutorial, onGoToUrl, showNa
             setSavedOpen(false);
             setOpen((o) => !o);
           }}
-          className="w-[80px] rounded-full text-center bg-amber-100 py-2 text-[15px] font-medium text-stone-700 transition-colors hover:bg-amber-200"
+          className={`w-[80px] rounded-full text-center py-2 text-[15px] font-medium text-stone-700 transition-colors hover:bg-amber-200 ${open ? "bg-amber-200" : "bg-amber-100"}`}
         >
           {open ? "close" : "actions"}
         </button>
@@ -416,7 +419,7 @@ export default function InfoCard({ currentUrl, onOpenTutorial, onGoToUrl, showNa
             setOpen(false);
             setSavedOpen((o) => !o);
           }}
-          className="w-[80px] rounded-full text-center bg-amber-100 py-2 text-[15px] font-medium text-stone-700 transition-colors hover:bg-amber-200"
+          className={`w-[80px] rounded-full text-center py-2 text-[15px] font-medium text-stone-700 transition-colors hover:bg-amber-200 ${savedOpen ? "bg-amber-200" : "bg-amber-100"}`}
         >
           saved{saved.length > 0 ? ` (${saved.length})` : ""}
         </button>
