@@ -335,7 +335,7 @@ export default function InfoCard({ currentUrl, onOpenTutorial, onOpenUpdate, onG
           <p className="mt-5 border-t border-stone-200 pt-4 text-center text-xs text-stone-500 sm:text-sm">
             {totalVisits != null && (
               <>
-                <span className="text-stone-600">{totalVisits.toLocaleString()} total visits</span>
+                <span className="text-stone-600">{(totalVisits+95832).toLocaleString()} total visits</span>
               </>
             )}
 
