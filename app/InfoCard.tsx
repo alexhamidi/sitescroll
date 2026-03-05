@@ -310,6 +310,15 @@ export default function InfoCard({ currentUrl, onOpenTutorial, onOpenUpdate, onG
                 <span className="absolute right-0 top-0 text-[11px] font-medium text-green-600">added</span>
               )}
             </div>
+            <a
+              href="/leaderboard"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-2 flex items-center justify-center gap-2 rounded-xl border-2 border-amber-200 bg-amber-50 px-4 py-2.5 text-sm font-medium text-stone-700 hover:bg-amber-100"
+            >
+              <i className="fa-trophy fa-solid" />
+              Leaderboard
+            </a>
             {showDiscord && (
               <a
                 href="https://discord.gg/tKwAnxbA"
@@ -361,36 +370,13 @@ export default function InfoCard({ currentUrl, onOpenTutorial, onOpenUpdate, onG
         </div>
       )}
 
-      <div className="flex flex-wrap items-center justify-end gap-2 sm:gap-4">
-        {showBookmarks && (
-          <>
-            <button
-              type="button"
-              onClick={toggleSave}
-              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-amber-100 text-stone-700 hover:bg-amber-200 sm:h-10 sm:w-10"
-              aria-label={isCurrentSaved ? "Unsave" : "Save"}
-              title={isCurrentSaved ? "Unsave" : "Save"}
-            >
-              <i className={`fa-bookmark fa-lg ${isCurrentSaved ? "fa-solid" : "fa-regular"}`} />
-            </button>
-            <button
-              onClick={() => {
-                setOpen(false);
-                setSavedOpen((o) => !o);
-              }}
-              className={`min-w-0 rounded-full px-3 py-2 text-center text-sm font-medium text-stone-700 hover:bg-amber-200 sm:w-[80px] sm:px-0 sm:text-[15px] ${savedOpen ? "bg-amber-300" : "bg-amber-100"}`}
-            >
-              saved{saved.length > 0 ? ` (${saved.length})` : ""}
-            </button>
-          </>
-        )}
-
+      <div className="flex flex-col items-end gap-2 min-[1050px]:flex-row min-[1050px]:flex-wrap min-[1050px]:gap-4">
         {showRating && (
-          <>
+          <div className="flex items-center gap-2 min-[1050px]:contents">
             <button
               type="button"
               onClick={() => castVote("up")}
-              className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-stone-700 hover:bg-amber-200 sm:h-10 sm:w-10 ${vote === "up" ? "bg-amber-300" : "bg-amber-100"}`}
+              className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-stone-700 hover:bg-amber-200 min-[1050px]:h-10 min-[1050px]:w-10 ${vote === "up" ? "bg-amber-300" : "bg-amber-100"}`}
               aria-label="Thumbs up"
               title="Like"
             >
@@ -399,32 +385,56 @@ export default function InfoCard({ currentUrl, onOpenTutorial, onOpenUpdate, onG
             <button
               type="button"
               onClick={() => castVote("down")}
-              className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-stone-700 hover:bg-amber-200 sm:h-10 sm:w-10 ${vote === "down" ? "bg-amber-300" : "bg-amber-100"}`}
+              className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-stone-700 hover:bg-amber-200 min-[1050px]:h-10 min-[1050px]:w-10 ${vote === "down" ? "bg-amber-300" : "bg-amber-100"}`}
               aria-label="Thumbs down"
               title="Dislike"
             >
               <i className={`fa-thumbs-down fa-lg ${vote === "down" ? "fa-solid" : "fa-regular"}`} />
             </button>
-          </>
+          </div>
         )}
 
-        <button
-          type="button"
-          onClick={submitReport}
-          disabled={reportStatus !== "idle"}
-          className="min-w-0 rounded-full bg-amber-100 px-3 py-2 text-center text-sm font-medium text-stone-700 hover:bg-amber-200 disabled:opacity-50 sm:w-[80px] sm:px-0 sm:text-[15px]"
-        >
-          {reportStatus === "done" ? "reported" : "report"}
-        </button>
-        <button
-          onClick={() => {
-            setSavedOpen(false);
-            setOpen((o) => !o);
-          }}
-          className={`min-w-0 rounded-full px-3 py-2 text-center text-sm font-medium text-stone-700 hover:bg-amber-200 sm:w-[80px] sm:px-0 sm:text-[15px] ${open ? "bg-amber-300" : "bg-amber-100"}`}
-        >
-          {open ? "close" : "more"}
-        </button>
+        <div className="flex items-center gap-2 flex-wrap min-[1050px]:contents">
+          {showBookmarks && (
+            <>
+              <button
+                type="button"
+                onClick={toggleSave}
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-amber-100 text-stone-700 hover:bg-amber-200 min-[1050px]:h-10 min-[1050px]:w-10"
+                aria-label={isCurrentSaved ? "Unsave" : "Save"}
+                title={isCurrentSaved ? "Unsave" : "Save"}
+              >
+                <i className={`fa-bookmark fa-lg ${isCurrentSaved ? "fa-solid" : "fa-regular"}`} />
+              </button>
+              <button
+                onClick={() => {
+                  setOpen(false);
+                  setSavedOpen((o) => !o);
+                }}
+                className={`min-w-0 rounded-full px-3 py-2 text-center text-sm font-medium text-stone-700 hover:bg-amber-200 min-[1050px]:w-[80px] min-[1050px]:px-0 min-[1050px]:text-[15px] ${savedOpen ? "bg-amber-300" : "bg-amber-100"}`}
+              >
+                saved{saved.length > 0 ? ` (${saved.length})` : ""}
+              </button>
+            </>
+          )}
+          <button
+            type="button"
+            onClick={submitReport}
+            disabled={reportStatus !== "idle"}
+            className="min-w-0 rounded-full bg-amber-100 px-3 py-2 text-center text-sm font-medium text-stone-700 hover:bg-amber-200 disabled:opacity-50 min-[1050px]:w-[80px] min-[1050px]:px-0 min-[1050px]:text-[15px]"
+          >
+            {reportStatus === "done" ? "reported" : "report"}
+          </button>
+          <button
+            onClick={() => {
+              setSavedOpen(false);
+              setOpen((o) => !o);
+            }}
+            className={`min-w-0 rounded-full px-3 py-2 text-center text-sm font-medium text-stone-700 hover:bg-amber-200 min-[1050px]:w-[80px] min-[1050px]:px-0 min-[1050px]:text-[15px] ${open ? "bg-amber-300" : "bg-amber-100"}`}
+          >
+            {open ? "close" : "more"}
+          </button>
+        </div>
       </div>
     </div>
     </>

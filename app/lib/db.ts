@@ -57,6 +57,7 @@ export async function getRandomSites(
   const p = getPool();
   const client = await p.connect();
   try {
+    const httpsOnly = "AND url LIKE 'https://%'";
     const excludeFilter =
       exclude.length > 0
         ? "AND url != ALL($1::text[])"
@@ -65,8 +66,8 @@ export async function getRandomSites(
       exclude.length > 0 ? [exclude, limit] : [limit];
     const sql =
       exclude.length > 0
-        ? `WITH total AS (SELECT count(*)::int AS n FROM sites WHERE score >= 0 AND url != ALL($1::text[])), r AS (SELECT floor(random() * greatest(0, (SELECT n FROM total) - $2))::int AS off) SELECT url FROM sites WHERE score >= 0 AND url != ALL($1::text[]) ORDER BY ctid OFFSET (SELECT off FROM r) LIMIT $2`
-        : `WITH total AS (SELECT count(*)::int AS n FROM sites WHERE score >= 0), r AS (SELECT floor(random() * greatest(0, (SELECT n FROM total) - $1))::int AS off) SELECT url FROM sites WHERE score >= 0 ORDER BY ctid OFFSET (SELECT off FROM r) LIMIT $1`;
+        ? `WITH total AS (SELECT count(*)::int AS n FROM sites WHERE score >= 0 ${httpsOnly} AND url != ALL($1::text[])), r AS (SELECT floor(random() * greatest(0, (SELECT n FROM total) - $2))::int AS off) SELECT url FROM sites WHERE score >= 0 ${httpsOnly} AND url != ALL($1::text[]) ORDER BY ctid OFFSET (SELECT off FROM r) LIMIT $2`
+        : `WITH total AS (SELECT count(*)::int AS n FROM sites WHERE score >= 0 ${httpsOnly}), r AS (SELECT floor(random() * greatest(0, (SELECT n FROM total) - $1))::int AS off) SELECT url FROM sites WHERE score >= 0 ${httpsOnly} ORDER BY ctid OFFSET (SELECT off FROM r) LIMIT $1`;
     const result = await client.query<{ url: string }>(sql, params);
     return result.rows.map((r) => r.url);
   } finally {
@@ -133,6 +134,22 @@ export async function getTotalVisits(): Promise<number> {
     "SELECT COALESCE(SUM(visits), 0)::text AS total FROM sites"
   );
   return Number(rows[0]?.total ?? 0);
+}
+
+export async function getTopSites(limit: number): Promise<{ url: string; score: number; first_name: string | null; last_name: string | null }[]> {
+  try {
+    const { rows } = await query<{ url: string; score: number; first_name: string | null; last_name: string | null }>(
+      "SELECT url, score, first_name, last_name FROM sites WHERE score >= 0 ORDER BY score DESC LIMIT $1",
+      [limit]
+    );
+    return rows;
+  } catch {
+    const { rows } = await query<{ url: string; score: number }>(
+      "SELECT url, score FROM sites WHERE score >= 0 ORDER BY score DESC LIMIT $1",
+      [limit]
+    );
+    return rows.map((r) => ({ ...r, first_name: null, last_name: null }));
+  }
 }
 
 export type IdeaRow = {

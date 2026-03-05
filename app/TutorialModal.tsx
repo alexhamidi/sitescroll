@@ -4,7 +4,7 @@ import { motion } from "motion/react";
 import { useState } from "react";
 
 const TUTORIAL_KEY = "sitescroll-seen-tutorial";
-const UPDATE_KEY = "sitescroll-seen-update-v1";
+const UPDATE_KEY = "sitescroll-seen-update-v2";
 
 export function getSeenTutorial(): boolean {
   if (typeof window === "undefined") return true;
@@ -101,7 +101,6 @@ export function WelcomeModal({ open, onClose }: ModalProps) {
 
 export function UpdateModal({ open, onClose }: ModalProps) {
   const [usedSave, setUsedSave] = useState<"yes" | "no" | null>(null);
-  const [feedback, setFeedback] = useState("");
   const [submitStatus, setSubmitStatus] = useState<"idle" | "sending" | "done">("idle");
 
   async function handleClose() {
@@ -113,7 +112,7 @@ export function UpdateModal({ open, onClose }: ModalProps) {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             url: "survey",
-            message: `SURVEY — used save: ${usedSave} | feedback: ${feedback.trim() || "none"}`,
+            message: `SURVEY — used save: ${usedSave}`,
           }),
         });
       } catch {}
@@ -130,6 +129,7 @@ export function UpdateModal({ open, onClose }: ModalProps) {
       <div className="mb-4">
         <p className="mb-2 text-sm font-medium italic text-stone-700">Update — March 4</p>
         <ul className="space-y-1 text-sm text-stone-600">
+          <li>— <a href="/leaderboard" target="_blank" rel="noopener noreferrer" className="font-medium text-amber-600 underline decoration-amber-300 underline-offset-2 hover:text-amber-700">Leaderboard</a>: top 20 sites by score with preview iframes</li>
           <li>— Adjusted to 100k curated sites</li>
           <li>— Improved detection for broken and non-personal sites</li>
           <li>— Better algorithm for recommending profiles</li>
@@ -138,7 +138,17 @@ export function UpdateModal({ open, onClose }: ModalProps) {
         </ul>
       </div>
 
-      <div className="flex flex-col gap-3">
+      <a
+        href="https://discord.gg/tKwAnxbA"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="mb-4 flex items-center justify-center gap-2 rounded-xl bg-indigo-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-indigo-600"
+      >
+        <i className="fa-brands fa-discord" />
+        Join Discord to give feedback
+      </a>
+
+      <div className="mb-4 flex flex-col gap-3">
         <p className="text-sm font-medium text-stone-700">Optional survey</p>
         <div>
           <label className="mb-1.5 block text-sm text-stone-600">Have you used the save feature?</label>
@@ -158,17 +168,6 @@ export function UpdateModal({ open, onClose }: ModalProps) {
               </button>
             ))}
           </div>
-        </div>
-        <div>
-          <label className="mb-1.5 block text-sm text-stone-600">Feedback</label>
-          <input
-            type="text"
-            value={feedback}
-            onChange={(e) => setFeedback(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleClose()}
-            placeholder="Suggestions, bugs, anything..."
-            className="w-full rounded-xl border-2 border-stone-200 bg-white px-4 py-3 text-[15px] text-stone-800 placeholder-stone-400 outline-none transition-colors focus:border-amber-400 focus:ring-2 focus:ring-amber-200"
-          />
         </div>
       </div>
 
